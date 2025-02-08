@@ -5,7 +5,7 @@ This is a simple introduction to the dataset and basic codes.
 ## How to get dataset for training and validation?
 We use data from [HighREV](https://openaccess.thecvf.com/content/CVPR2023/html/Sun_Event-Based_Frame_Interpolation_With_Ad-Hoc_Deblurring_CVPR_2023_paper.html) dataset for evaluation. Thus we recommend also using HighREV dataset for model trainig.
 
-
+### Raw events
 The HighREV dataset can be downloaded [here](https://codalab.lisn.upsaclay.fr/my/datasets/download/9f275580-9b38-4984-b995-1e59e96b6111)
 
 or 
@@ -33,6 +33,21 @@ The structure of the HighREV dataset is as following:
 
 ```
 For each blurry image, there are several NPZ files containing events. By concatenating them, the events for the entire exposure time can be obtained. More details please refer to `./basicsr/data/npz_image_dataset.py`
+
+
+### Voxel grids
+***If you find the data loading too slow***, we also provide processed voxel grid (bin=6) for convenience. The data loading would be faster by using the processed voxel grids when training.
+
+[Processed voxel grid of events](https://codalab.lisn.upsaclay.fr/my/datasets/download/c83e95ab-d4e6-4b9f-b7de-e3d3b45356e3): 
+
+### Converting events to voxel
+By using `./basicsr/utils/npz2voxel.py` you can convert raw events to voxel grids by you own offline.
+
+#### Dataset codes:
+`./basicsr/data/npz_image_dataset.py` for processing raw events.
+`./basicsr/data/voxelnpz_image_dataset.py` for processing voxel grids.
+
+
 
 
 ## How to start training?
