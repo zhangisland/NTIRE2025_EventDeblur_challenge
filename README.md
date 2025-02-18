@@ -1,5 +1,10 @@
 # [NTIRE 2025 the First Challenge on Event-Based Deblurring](https://codalab.lisn.upsaclay.fr/competitions/21498) @ [CVPR 2025](https://cvlai.net/ntire/2025/)
 
+<p align="center">
+  <img src="./figs/logo.jpg" alt="Logo" width="600">
+</p>
+
+
 This is a simple introduction to the dataset and basic codes.
 
 ## How to get dataset for training and validation?
