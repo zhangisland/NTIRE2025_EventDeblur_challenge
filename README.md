@@ -7,7 +7,16 @@
 
 This is a simple introduction to the dataset and basic codes.
 
-## Downloading Dataset
+## Downloading Testset
+### Blurry images and Raw events
+Testset input: 
+
+[CodaLab_downloading_link](https://codalab.lisn.upsaclay.fr/my/datasets/download/3ed362b8-9084-414d-a5f3-d906708773cf); [Kaggle_downloading_link](https://www.kaggle.com/datasets/lei0331/highrev-testset)
+
+(Optional) Voxel input for testset:
+[CodaLab_downloading_link](https://codalab.lisn.upsaclay.fr/my/datasets/download/bf89f778-353a-4a51-9dba-69894de81db0); [Kaggle_downloading_link](https://www.kaggle.com/datasets/lei0331/highrev-testset)
+
+## Downloading Trainset and Valset
 
 ### Raw events
 The [HighREV dataset with raw events](https://codalab.lisn.upsaclay.fr/my/datasets/download/9f275580-9b38-4984-b995-1e59e96b6111)

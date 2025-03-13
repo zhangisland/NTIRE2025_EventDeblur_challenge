@@ -78,13 +78,14 @@ def recursive_glob(rootdir='.', suffix=''):
 
 def main():
     
-    dataroot = '/work/lei_sun/HighREV/val'
-    dataroot = '/work/lei_sun/HighREV/train'
+    dataroot = '/Volumes/SL/NTIRE_dataset/test_stage/HighREV_test/test'
+    # dataroot = '/work/lei_sun/HighREV/train'
+    voxel_bins = 6
+
 
     voxel_root = dataroot + '/voxel'
     if not os.path.exists(voxel_root):
         os.makedirs(voxel_root)
-    voxel_bins = 6
     blur_frames = sorted(recursive_glob(rootdir=os.path.join(dataroot, 'blur'), suffix='.png'))
     blur_frames = [os.path.join(dataroot, 'blur', blur_frame) for blur_frame in blur_frames]
     h_lq, w_lq = 1224, 1632
