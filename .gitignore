@@ -2,5 +2,6 @@ __pychache__/
 *.pyc
 experiments/
 .DS_Store
-.eggs/
+*.egg
+.DS_Store
 results/
