@@ -4,13 +4,15 @@ from collections import OrderedDict
 from copy import deepcopy
 from os import path as osp
 from tqdm import tqdm
+import logging
 
 from basicsr.models.archs import define_network
 from basicsr.models.base_model import BaseModel
-from basicsr.utils import get_root_logger, imwrite, tensor2img
+from basicsr.utils import get_root_logger, imwrite, tensor2img, get_model_flops
 
 loss_module = importlib.import_module('basicsr.models.losses')
 metric_module = importlib.import_module('basicsr.metrics')
+logger = logging.getLogger('basicsr')
 
 
 class ImageEventRestorationModel(BaseModel):
@@ -22,7 +24,17 @@ class ImageEventRestorationModel(BaseModel):
         # define network
         self.net_g = define_network(deepcopy(opt['network_g']))
         self.net_g = self.model_to_device(self.net_g)
+        # parameters
         self.print_network(self.net_g)
+
+        # flops
+        if self.opt.get('print_flops', False):
+            input_dim = self.opt.get('flops_input_shape', [(3, 256, 256),(6, 256, 256)])
+            flops = get_model_flops(self.net_g, input_dim, False)
+            flops = flops/10**9
+            logger.info("{:>16s} : {:<.4f} [G]".format("FLOPs", flops))
+
+
 
         # load pretrained models
         load_path = self.opt['path'].get('pretrain_network_g', None)
@@ -261,10 +273,8 @@ class ImageEventRestorationModel(BaseModel):
         self.lq = self.origin_lq
         self.voxel = self.origin_voxel
 
-
     def optimize_parameters(self, current_iter):
         self.optimizer_g.zero_grad()
-
         if self.opt['datasets']['train'].get('use_mask'):
             preds = self.net_g(x = self.lq, event = self.voxel, mask = self.mask)
         else:
@@ -332,7 +342,9 @@ class ImageEventRestorationModel(BaseModel):
                 if j >= n:
                     j = n
 
-                if self.opt['datasets']['val'].get('use_mask'):
+                if 'val' in self.opt['datasets'] and self.opt['datasets']['val'].get('use_mask'):
+                    pred = self.net_g(x = self.lq[i:j, :, :, :], event = self.voxel[i:j, :, :, :], mask = self.mask[i:j, :, :, :])  # mini batch all in 
+                elif 'test' in self.opt['datasets'] and self.opt['datasets']['test'].get('use_mask'):
                     pred = self.net_g(x = self.lq[i:j, :, :, :], event = self.voxel[i:j, :, :, :], mask = self.mask[i:j, :, :, :])  # mini batch all in 
                 else:
                     pred = self.net_g(x = self.lq[i:j, :, :, :], event = self.voxel[i:j, :, :, :])  # mini batch all in 

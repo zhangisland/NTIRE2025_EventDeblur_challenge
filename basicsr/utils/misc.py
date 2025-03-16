@@ -28,6 +28,8 @@ def mkdir_and_rename(path):
     Args:
         path (str): Folder path.
     """
+    # import pdb
+    # pdb.set_trace()
     if osp.exists(path):
         new_name = path + '_archived_' + get_time_str()
         print(f'Path already exists. Rename it to {new_name}', flush=True)

@@ -81,6 +81,27 @@ Multi-GPU training:
 python -m torch.distributed.launch --nproc_per_node=4 --master_port=4321 basicsr/train.py -opt options/train/HighREV/EFNet_HighREV_Deblur.yml --launcher pytorch
 ```
 
+
+## How to start testing?
+Example:
+```
+python3 basicsr/test.py -opt options/test/HighREV/EFNet_HighREV_Deblur.yml
+```
+
+Calculating flops:
+set ``print_flops`` to ``true`` and set your input shapes in ``flops_input_shape`` in the test yml file.
+Example:
+```
+print_flops: true 
+flops_input_shape: 
+  - [3, 256, 256] # image shape
+  - [6, 256, 256] # event shape
+```
+
+Be sure to modify the path configurations in yml file.
+
+
+
 ## Develop your own model
 We recommand to used basicsr (already used here, [tutorial](https://github.com/XPixelGroup/BasicSR)) for developing. It is easy to change the models in `./basicsr/models`.
 

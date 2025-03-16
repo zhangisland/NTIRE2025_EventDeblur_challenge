@@ -21,7 +21,8 @@ from basicsr.utils.options import dict2str, parse
 
 def parse_options(is_train=True):
     parser = argparse.ArgumentParser()
-
+    # import pdb
+    # pdb.set_trace()
 
     parser.add_argument(
         '-opt', type=str, required=True, help='Path to option YAML file.')
