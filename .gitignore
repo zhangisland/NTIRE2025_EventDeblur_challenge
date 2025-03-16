@@ -5,3 +5,5 @@ experiments/
 .eggs/
 .DS_Store
 results/
+*egg-info/
+
