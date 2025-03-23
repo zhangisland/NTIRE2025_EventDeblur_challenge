@@ -1,13 +1,8 @@
-
 import torch
-
-
 import os
 from config import Config
 import re
-
-
-
+from tqdm import tqdm
 torch.backends.cudnn.benchmark = True
 import cv2
 import torch.nn as nn
@@ -117,7 +112,7 @@ def main():
         val_loader = DataLoader(dataset=val_dataset, batch_size=1, shuffle=False, num_workers=1, drop_last=False,
                                 pin_memory=True)
         print(f"#val_dataloader in seq {test_file}: {len(val_loader)}")
-        for ii, data_val in enumerate(val_loader):
+        for ii, data_val in tqdm(enumerate(val_loader), total=len(val_loader)):
             input_img = data_val[0].cuda()            
             input_event = data_val[1].cuda()
             name = data_val[3]
