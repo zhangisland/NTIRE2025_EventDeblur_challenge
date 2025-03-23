@@ -1,7 +1,11 @@
+
 import torch
-from torch import nn as nn
+import torch.nn as nn
 from torch.nn import functional as F
 import numpy as np
+
+
+import kornia
 
 from basicsr.models.losses.loss_util import weighted_loss
 
@@ -93,7 +97,6 @@ class MSELoss(nn.Module):
             pred, target, weight, reduction=self.reduction)
 
 class PSNRLoss(nn.Module):
-
     def __init__(self, loss_weight=1.0, reduction='mean', toY=False):
         super(PSNRLoss, self).__init__()
         assert reduction == 'mean'
@@ -196,3 +199,44 @@ class WeightedTVLoss(L1Loss):
         loss = x_diff + y_diff
 
         return loss
+
+class GradLoss(nn.Module):
+    def __init__(self, loss_weight=1.0, reduction='mean'):
+        super().__init__()
+        if reduction not in ['none', 'mean', 'sum']:
+            raise ValueError(f'Unsupported reduction mode: {reduction}. Supported ones are: none, mean, sum')
+        self.loss_weight = loss_weight
+        self.reduction = reduction
+        self.spatial_gradient = kornia.filters.SpatialGradient()
+
+    def forward(self, output, gt_img, weight=None, **kwargs):
+        output_grad = self.spatial_gradient(output)
+        gt_grad = self.spatial_gradient(gt_img)
+
+        # Flatten the gradient tensors to compute the L1 loss
+        output_grad_flat = torch.cat([output_grad[:, 0], output_grad[:, 1]], dim=1)
+        gt_grad_flat = torch.cat([gt_grad[:, 0], gt_grad[:, 1]], dim=1)
+
+        # Compute the L1 loss between the gradients
+        loss = torch.abs(output_grad_flat - gt_grad_flat)
+
+        if weight is not None:
+            loss = loss * weight
+
+        if self.reduction == 'mean':
+            return self.loss_weight * torch.mean(loss)
+        elif self.reduction == 'sum':
+            return self.loss_weight * torch.sum(loss)
+        else:  # self.reduction == 'none'
+            return self.loss_weight * loss
+
+
+if __name__ == '__main__':
+    pred = torch.rand(2, 3, 4, 4)
+    target = torch.rand(2, 3, 4, 4)
+    calculate_charbonnier_loss = CharbonnierLoss()
+    ch_loss = calculate_charbonnier_loss(pred, target)
+    calculate_sobel_loss = GradLoss()
+    sobel_loss = calculate_sobel_loss(pred, target)
+    print(ch_loss)
+    print(sobel_loss)

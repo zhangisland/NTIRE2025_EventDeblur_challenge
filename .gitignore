@@ -6,4 +6,5 @@ experiments/
 .DS_Store
 results/
 *egg-info/
+model_zoo/
 

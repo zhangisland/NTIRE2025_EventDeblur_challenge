@@ -1,0 +1,15 @@
+###############
+## 
+####
+
+GPU: [0]
+
+VERBOSE: True
+
+MODEL:
+  MODE: 'Deblurring'
+  SESSION: 'STCNet'
+
+TESTING:
+  RESUME: True
+  RESUME_PATH: ../model_zoo/10_BUPTMMSTCNet.pth

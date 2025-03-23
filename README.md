@@ -1,35 +1,14 @@
 # [NTIRE 2025 the First Challenge on Event-Based Deblurring](https://codalab.lisn.upsaclay.fr/competitions/21498) @ [CVPR 2025](https://cvlai.net/ntire/2025/)
 
-<p align="center">
-  <img src="./figs/logo.jpg" alt="Logo" width="600">
-</p>
+## Team BUPTMM
 
-
-This is a simple introduction to the dataset and basic codes.
-
-## Downloading Testset
-### Blurry images and Raw events
-Testset input: 
-
-[CodaLab_downloading_link](https://codalab.lisn.upsaclay.fr/my/datasets/download/3ed362b8-9084-414d-a5f3-d906708773cf); [Kaggle_downloading_link](https://www.kaggle.com/datasets/lei0331/highrev-testset)
-
-(Optional) Voxel input for testset:
-[CodaLab_downloading_link](https://codalab.lisn.upsaclay.fr/my/datasets/download/bf89f778-353a-4a51-9dba-69894de81db0); [Kaggle_downloading_link](https://www.kaggle.com/datasets/lei0331/highrev-testset)
-
-## Downloading Trainset and Valset
-
-### Raw events
-The [HighREV dataset with raw events](https://codalab.lisn.upsaclay.fr/my/datasets/download/9f275580-9b38-4984-b995-1e59e96b6111)
-
-
-### Voxel grids
-***If you find the data loading too slow***, we also provide processed voxel grid (bin=6) for convenience, which is optional.
-
-[Processed voxel grid of events](https://codalab.lisn.upsaclay.fr/my/datasets/download/c83e95ab-d4e6-4b9f-b7de-e3d3b45356e3)
+| TeamName |  PSNR | SSIM |
+|:--------:|:-----:|:----:|
+|  BUPTMM  | 40.204 | 0.92 |
 
 
 
-
+## Dataset Structure
 The structure of the HighREV dataset with raw events is as following:
 
 ```
@@ -41,51 +20,55 @@ The structure of the HighREV dataset with raw events is as following:
     |    |----event
     |    |    |----SEQNAME_%5d_%2d.npz
     |    |    |----...
+    |    |----voxel
+    |    |    |----SEQNAME_%5d.npz
+    |    |    |----...
+    |    |----voxel_bin24
+    |    |    |----SEQNAME_%5d.npz
+    |    |    |----...
     |    |----sharp
     |    |    |----SEQNAME_%5d.png
     |    |    |----...
     |----val
     ...
-
 ```
-For each blurry image, there are several NPZ files containing events. By concatenating them, the events for the entire exposure time can be obtained. More details please refer to `./basicsr/data/npz_image_dataset.py`
 
 
 ### Converting events to voxel
-By using `./basicsr/utils/npz2voxel.py` you can convert raw events to voxel grids by you own offline.
+We use `./basicsr/utils/npz2voxel.py` script to convert the raw events to voxel grids (bin=24) for better performance in EFNet training process.
 
 #### Dataset codes:
-`./basicsr/data/npz_image_dataset.py` for processing raw events.
-`./basicsr/data/voxelnpz_image_dataset.py` for processing voxel grids.
+- `basicsr/data/buptmm_voxelnpz_image_dataset.py` for processing voxel grids.
+- `basicsr/data/buptmm_finaltest_voxelnpz_image_dataset.py` for processing voxel grids.
 
-
-
+## EFNet
 
 ## How to start training?
 
-We provide a simple codebase here:
-
-
-```
-git clone https://github.com/AHupuJR/NTIRE2025_EventDeblur_challenge
+### Installation
+```bash
 cd NTIRE2025_EventDeblur_challenge
+conda create -n efnet python=3.8.5  # necessary to create a new env for basicsr
+conda activate efnet
+conda install pytorch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 pytorch-cuda=12.1 -c pytorch -c nvidia
 pip install -r requirements.txt
-python setup.py develop --no_cuda_ext
+python setup.py develop --no_cuda_ext  # necessary when adding new functions or moving files, --no_cuda_ext will not install cuda extension
 ```
+
+### How to start training?
 Single GPU training:
-```
-python ./basicsr/train.py -opt options/train/HighREV/EFNet_HighREV_Deblur.yml
+```bash
+python basicsr/train.py -opt options/train/HighREV/buptmm_EFNet_bin32_tunebin24.yml
 ```
 Multi-GPU training:
-```
-python -m torch.distributed.launch --nproc_per_node=4 --master_port=4321 basicsr/train.py -opt options/train/HighREV/EFNet_HighREV_Deblur.yml --launcher pytorch
+```bash
+python -m torch.distributed.launch --nproc_per_node=4 --master_port=4321 basicsr/train.py -opt options/train/HighREV/buptmm_EFNet_bin32_tunebin24.yml --launcher pytorch
 ```
 
 
-## How to start testing?
-Example:
-```
-python3 basicsr/test.py -opt options/test/HighREV/EFNet_HighREV_Deblur.yml
+### How to start testing?
+```bash
+python basicsr/test_demo.py -opt /root/work/NTIRE2025_EventDeblur_challenge/options/test/HighREV/BUPTMM_EFNet_test_highrev_bin24.yml
 ```
 
 Calculating flops:
@@ -97,50 +80,17 @@ flops_input_shape:
   - [3, 256, 256] # image shape
   - [6, 256, 256] # event shape
 ```
-
-Be sure to modify the path configurations in yml file.
-
-
-
-## Develop your own model
-We recommand to used basicsr (already used here, [tutorial](https://github.com/XPixelGroup/BasicSR)) for developing. It is easy to change the models in `./basicsr/models`.
+## STCNet
+Please refer to the [STCNet folder](STCNet/README.md)
 
 
-
-## Use your own codes
-The dataset-related code is in `./basicsr/data/npz_image_dataset.py`. If you are not using the code from this repository, please integrate it into your own code for convenience.
-
-
-## Others
-The aim is to obtain a network design / solution that fusing events and images and produce high quality results with the best performance (i.e., PSNR). We suggest using HighREV dataset for training.
-
-For the sake of fairness, please do not train your model with the (HighREV) validation GT images.
-
-
-The top ranked participants will be awarded and invited to follow the CVPR submission guide for workshops to describe their solution and to submit to the associated NTIRE workshop at CVPR 2025.
-   
-<!-- ## How to add your model to this baseline?
-1. Register your team in the [Google Spreadsheet](https://docs.google.com/spreadsheets/d/1XVa8LIaAURYpPvMf7i-_Yqlzh-JsboG0hvcnp-oI9rs/edit?usp=sharing) and get your team ID.
-2. Put your the code of your model in `./models/[Your_Team_ID]_[Your_Model_Name].py`
-   - Please add **only one** file in the folder `./models`. **Please do not add other submodules**.
-   - Please zero pad [Your_Team_ID] into two digits: e.g. 00, 01, 02 
-3. Put the pretrained model in `./model_zoo/[Your_Team_ID]_[Your_Model_Name].[pth or pt or ckpt]`
-   - Please zero pad [Your_Team_ID] into two digits: e.g. 00, 01, 02  
-4. Add your model to the model loader `./test_demo/select_model` as follows:
-    ```python
-        elif model_id == [Your_Team_ID]:
-            # define your model and load the checkpoint
-    ```
-   - Note: Please set the correct data_range, either 255.0 or 1.0
-5. Send us the command to download your code, e.g, 
-   - `git clone [Your repository link]`
-   - We will do the following steps to add your code and model checkpoint to the repository.
-This repository shows how to add noise to synthesize the noisy image. It also shows how you can save an image. -->
-
+## Reproduce Results
+After testing of EFNet and STCNet, use `merge.py` to get the final results.
+Put results of EFNet to `EFNet_output` folder, and put results of STCNet to `STCNet_output` folder. 
+Then run: `python merge.py`
 
 
 ## Citations
-
 ```
 @inproceedings{sun2023event,
   title={Event-based frame interpolation with ad-hoc deblurring},
@@ -157,5 +107,24 @@ This repository shows how to add noise to synthesize the noisy image. It also sh
   pages={412--428},
   year={2022},
   organization={Springer}
+}
+
+@article{yangMotionDeblurring2024,
+  title = {Motion Deblurring via Spatial-Temporal Collaboration of Frames and Events},
+  author = {Yang, Wen and Wu, Jinjian and Ma, Jupo and Li, Leida and Shi, Guangming},
+  year = {2024},
+  month = mar,
+  journal = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume = {38},
+  number = {7},
+  pages = {6531--6539}
+}
+
+@inproceedings{wengEventBasedBlurry2023,
+  title = {Event-Based Blurry Frame Interpolation Under Blind Exposure},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  author = {Weng, Wenming and Zhang, Yueyi and Xiong, Zhiwei},
+  year = {2023},
+  pages = {1588--1598}
 }
 ```

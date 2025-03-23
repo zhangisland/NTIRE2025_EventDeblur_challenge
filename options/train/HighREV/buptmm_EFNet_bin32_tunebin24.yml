@@ -1,0 +1,136 @@
+# general settings
+name: EFNet_train_based_GoPro
+model_type: BUPTMMImageEventRestorationModel
+scale: 1
+num_gpu: 1 # set num_gpu: 0 for cpu mode
+manual_seed: 114514
+is_train: true
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: highrev-train
+    type: VoxelnpzPngSingleDeblurDataset
+    voxel_bins: 24
+    use_voxel: true
+    dataroot: datasets/HighREV/train
+    gt_size: 1024
+    norm_voxel: true  
+
+    io_backend:
+      type: disk
+    
+    use_hflip: false
+    use_rot: false
+    # data loader settings
+    use_shuffle: true
+    num_worker_per_gpu: 4
+    batch_size_per_gpu: 1
+    dataset_enlarge_ratio: 4
+    prefetch_mode: cuda
+    pin_memory: true
+    num_prefetch_queue: 8
+  val:
+    name: highrev-val
+    type: VoxelnpzPngSingleDeblurDataset
+    voxel_bins: 24
+    use_voxel: true
+    dataroot: datasets/HighREV/val
+    gt_size: 256
+    norm_voxel: true  
+
+    io_backend:
+      type: disk
+    
+    use_hflip: false
+    use_rot: false
+
+dataset_name: HighREV
+
+# network structures
+network_g:
+  type: EFNetDetailEnhance
+  in_chn: 3
+  ev_chn: 24
+  wf: 64
+  depth: 3
+  num_heads: [1, 2, 4]
+  fuse_before_downsample: true
+
+
+# path
+path:
+  pretrained_ev_chn: 6
+  pretrain_network_g: checkpoints/GoPro.pth # pretrain_models/net_g_latest_GoPro.pth
+  strict_load_g: false
+  resume_state: ~
+  root: exp_runs/
+
+
+# training settings
+train:
+  optim_g:
+    type: AdamW
+    lr: !!float 2e-4
+    weight_decay: !!float 1e-4
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 100000 
+    eta_min: !!float 1e-7
+
+  total_iter: 100000
+  warmup_iter: -1 # no warm up
+
+  # losses
+  basicl1_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+  # pixel_opt:
+  #   type: PSNRLoss
+  #   loss_weight: 0.5
+  #   reduction: mean
+  charbonnier_opt:
+    type: CharbonnierLoss
+    loss_weight: 0.5
+    reduction: mean
+  sobel_opt:
+    type: GradLoss
+    loss_weight: 0.5
+    reduction: mean
+
+
+# validation settings
+val:
+  save_img: true
+  grids: ~
+  val_freq: 10000
+  crop_size: ~
+  rgb2bgr: true
+  use_image: false
+  
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false 
+
+
+# logging settings
+logger:
+  print_freq: 500
+  save_checkpoint_freq: !!float 500
+  use_tb_logger: true
+
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500

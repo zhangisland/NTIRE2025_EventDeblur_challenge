@@ -8,7 +8,14 @@ pyyaml
 requests
 scikit-image
 scipy
-tb-nightly
+# tb-nightly
 tqdm
 yapf
 h5py
+einops
+pandas
+timm
+loguru
+wandb
+tensorboard
+kornia

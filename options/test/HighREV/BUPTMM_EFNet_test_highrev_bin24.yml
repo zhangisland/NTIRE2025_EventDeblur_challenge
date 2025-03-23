@@ -1,0 +1,101 @@
+# general settings
+name: EFNet_final_test
+model_type: BUPTMMTestImageEventRestorationModel
+scale: 1
+num_gpu: 1 # set num_gpu: 0 for cpu mode
+manual_seed: 10
+is_train: false
+
+print_flops: false 
+flops_input_shape: 
+  - [3, 256, 256] # image shape
+  - [24, 256, 256] # event shape
+
+# dataset and data loader settings
+datasets:
+  ## only used for test
+  test:
+    name: highrev-test
+    type: FinalTestVoxelnpzPngSingleDeblurDataset # NpzPngSingleDeblurDataset # VoxelnpzPngSingleDeblurDataset
+    voxel_bins: 24
+    
+    dataroot: datasets/HighREV/test
+    gt_size: ~
+    norm_voxel: true  
+
+    io_backend:
+      type: disk
+    
+    use_hflip: false
+    use_rot: false
+
+dataset_name: HighREV
+
+# network structures
+network_g:
+  type: EFNetDetailEnhance
+  in_chn: 3
+  ev_chn: 24
+  wf: 64
+  depth: 3
+  num_heads: [1, 2, 4]
+  fuse_before_downsample: true
+
+
+# path
+path:
+  pretrain_network_g: model_zoo/10_BUPTMMEFNet.pth
+  strict_load_g: true
+  resume_state: ~
+  root: exp_inference/
+
+# training settings
+train:
+  optim_g:
+    type: AdamW
+    lr: !!float 2e-4
+    weight_decay: !!float 1e-4
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 200000 
+    eta_min: !!float 1e-7
+
+  total_iter: 200000
+  warmup_iter: -1 # no warm up
+
+  # losses
+  pixel_opt:
+    type: PSNRLoss
+    loss_weight: 0.5
+    reduction: mean
+
+# validation settings
+val:
+  save_img: true
+  grids: ~
+  crop_size: ~
+  rgb2bgr: true # to my h5 data, its false
+  
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: true
+    
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: true 
+
+# logging settings
+logger:
+  print_freq: 500
+  save_checkpoint_freq: !!float 500
+  use_tb_logger: true
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
