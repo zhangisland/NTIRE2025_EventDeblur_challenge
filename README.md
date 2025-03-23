@@ -6,6 +6,12 @@
 |:--------:|:-----:|:----:|
 |  BUPTMM  | 40.204 | 0.92 |
 
+### Checkpoints
+- Pretrained model download command: `wget https://1drv.ms/u/c/ea2a370299726471/EcDVUzTQwuNLozRtZUHvpCUB8zJyWhiOaY-PbMQM4dFDtw?e=I2gAHG`
+After downloading, put it to `model_zoo/`
+
+### Results
+- Result of PSNR40.204 download command: `wget https://1drv.ms/u/c/ea2a370299726471/EcBi4zfln8dOsmerhs8kr9YBlsAlW3EpZNtbMyrRadB2-g?e=qBDhSd`
 
 
 ## Dataset Structure
@@ -40,6 +46,11 @@ We use `./basicsr/utils/npz2voxel.py` script to convert the raw events to voxel 
 #### Dataset codes:
 - `basicsr/data/buptmm_voxelnpz_image_dataset.py` for processing voxel grids.
 - `basicsr/data/buptmm_finaltest_voxelnpz_image_dataset.py` for processing voxel grids.
+
+
+
+
+
 
 ## EFNet
 
