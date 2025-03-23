@@ -7,11 +7,17 @@
 |  BUPTMM  | 40.204 | 0.92 |
 
 ### Checkpoints
-- Pretrained model download command: `wget https://1drv.ms/u/c/ea2a370299726471/EcDVUzTQwuNLozRtZUHvpCUB8zJyWhiOaY-PbMQM4dFDtw?e=I2gAHG`
+Download pretrained models: 
+```bash
+wget https://1drv.ms/u/c/ea2a370299726471/EcDVUzTQwuNLozRtZUHvpCUB8zJyWhiOaY-PbMQM4dFDtw?e=I2gAHG
+```
 After downloading, put it to `model_zoo/`
 
 ### Results
-- Result of PSNR40.204 download command: `wget https://1drv.ms/u/c/ea2a370299726471/EcBi4zfln8dOsmerhs8kr9YBlsAlW3EpZNtbMyrRadB2-g?e=qBDhSd`
+Download Result of PSNR40.204: 
+```bash
+wget https://1drv.ms/u/c/ea2a370299726471/EcBi4zfln8dOsmerhs8kr9YBlsAlW3EpZNtbMyrRadB2-g?e=qBDhSd
+```
 
 
 ## Dataset Structure
