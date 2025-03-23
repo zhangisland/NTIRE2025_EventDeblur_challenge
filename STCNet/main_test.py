@@ -116,14 +116,12 @@ def main():
         val_dataset = DataLoaderTestNoSharp_npz(opt.father_test_path_npz, opt.father_test_voxel_path, test_file, opt)
         val_loader = DataLoader(dataset=val_dataset, batch_size=1, shuffle=False, num_workers=1, drop_last=False,
                                 pin_memory=True)
-        print(f"len val dataloader: {len(val_loader)}")
+        print(f"#val_dataloader in seq {test_file}: {len(val_loader)}")
         for ii, data_val in enumerate(val_loader):
-            input_img = data_val[0].cuda()
-            print(f'input_img.shape: {input_img.shape}')
+            input_img = data_val[0].cuda()            
             input_event = data_val[1].cuda()
             name = data_val[3]
 
-            print(f'name: {name}')
             with torch.no_grad():
                 restored = model_restoration(input_img, input_event)  
 
