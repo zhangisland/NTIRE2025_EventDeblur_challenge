@@ -43,8 +43,6 @@ We use `./basicsr/utils/npz2voxel.py` script to convert the raw events to voxel 
 
 ## EFNet
 
-## How to start training?
-
 ### Installation
 ```bash
 cd NTIRE2025_EventDeblur_challenge
